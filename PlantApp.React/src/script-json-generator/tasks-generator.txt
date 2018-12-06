@@ -1,0 +1,17 @@
+[
+  {
+    'repeat(3, 5)': {
+      Id: '{{index()}}',
+      Name: '{{firstName()}} {{surname()}}',
+      phone: '+3 {{phone()}}',
+      Workcenter: 'Web',
+      Node: '{{lorem(1, "words")}}',
+      CommentOperator: '{{lorem(10, "words")}}',
+      CommentTechnicians: '{{lorem(5, "words")}}',
+      Criticality: '{{random("NoCritical", "Critical")}}',
+      Waitingforparts: '{{bool()}}',
+      StatusOperator: '{{random("open", "wait", "run", "close")}}',
+      StatusTechnicians: '{{random("open", "wait", "run", "close")}}'
+    }
+  }
+]
