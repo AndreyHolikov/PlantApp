@@ -1,9 +1,8 @@
-﻿using PlantApp.BLL.DTO;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace PlantApp.BLL.Interfaces
 {
-    public interface IService<T> where T : class
+    public interface ICrudService<T> where T : class
     {
         IEnumerable<T> GetAll();
         T Get(int id);

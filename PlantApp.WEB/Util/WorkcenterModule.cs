@@ -1,7 +1,8 @@
 ﻿using Ninject.Modules;
 using PlantApp.BLL.Services;
 using PlantApp.BLL.Interfaces;
-using PlantApp.BLL.DTO;
+using PlantApp.WEB.DTO;
+using PlantApp.DAL.Entities;
 
 namespace PlantApp.WEB.Util
 {
@@ -9,7 +10,7 @@ namespace PlantApp.WEB.Util
     {
         public override void Load()
         {
-            Bind<IService<WorkcenterDTO>>().To<WorkcenterService>();
+            Bind<ICrudService<Workcenter>>().To<WorkcenterService>();
         }
     }
 }

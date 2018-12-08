@@ -4,9 +4,10 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using PlantApp.BLL.Interfaces;
-using PlantApp.BLL.DTO;
 using PlantApp.WEB.Models;
 using AutoMapper;
+using PlantApp.DAL.Entities;
+using PlantApp.WEB.DTO;
 
 // TODO List
 
@@ -29,20 +30,20 @@ using AutoMapper;
 namespace PlantApp.WEB.Controllers
 {
     public class HomeController : Controller
-    { 
-        IService<WorkcenterDTO> workcenterService;
+    {
+        ICrudService<Workcenter> workcenterService;
 
-        public HomeController(IService<WorkcenterDTO> workcenter)
+        public HomeController(ICrudService<Workcenter> workcenter)
         {
             workcenterService = workcenter;
         }
 
         public ActionResult Index()
         {  
-            IEnumerable<WorkcenterDTO> workcenterDtos = workcenterService.GetAll();
-            var mapper = new MapperConfiguration(cfg => cfg.CreateMap<WorkcenterDTO, WorkcenterViewModel>()).CreateMapper();
-            var workcenters = mapper.Map<IEnumerable<WorkcenterDTO>, List<WorkcenterViewModel>>(workcenterDtos);
-            return View(workcenters);
+            IEnumerable<Workcenter> workcenters = workcenterService.GetAll();
+            var mapper = new MapperConfiguration(cfg => cfg.CreateMap<Workcenter, WorkcenterDTO>()).CreateMapper();
+            var workcenterDtos = mapper.Map<IEnumerable<Workcenter>, List<WorkcenterDTO>>(workcenters);
+            return View(workcenterDtos);
         }
 
         protected override void Dispose(bool disposing)

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using NLog;
-using PlantApp.BLL.DTO;
+using PlantApp.DAL.Entities;
+using PlantApp.WEB.DTO;
 using PlantApp.BLL.Infrastructure;
 using PlantApp.BLL.Interfaces;
 using PlantApp.WEB.Models;
@@ -16,39 +17,39 @@ namespace PlantApp.WEB.Controllers
 {
     public class WorkcenterController : Controller
     {
-        IService<WorkcenterDTO> workcenterService;
+        ICrudService<Workcenter> workcenterCrudService;
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
-        public WorkcenterController(IService<WorkcenterDTO> workcenter)
+        public WorkcenterController(ICrudService<Workcenter> workcenter)
         {
-            workcenterService = workcenter;
+            workcenterCrudService = workcenter;
         }
 
         
         public JsonResult Index()
         {
-            var workcenterDtos = workcenterService.GetAll();
-            var workcenters = AutoMapperWebUtil.IEnumerableWorkcenterDtoToVM(workcenterDtos);
-            return Json(workcenters, JsonRequestBehavior.AllowGet);
+            var workcenters = workcenterCrudService.GetAll();
+            var workcenterDtos = AutoMapperWebUtil.IEnumerableWorkcenterEntitiesToDto(workcenters);
+            return Json(workcenterDtos, JsonRequestBehavior.AllowGet);
         }
 
         public JsonResult Add()
         {
-            var workcenterViewModel = new WorkcenterViewModel();
-            workcenterViewModel.ModelState = this.ModelState;
-            return Json(workcenterViewModel, JsonRequestBehavior.AllowGet);
+            var workcenterDto = new WorkcenterDTO();
+            //workcenterViewModel.ModelState = this.ModelState;
+            return Json(workcenterDto, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public ActionResult Add(WorkcenterViewModel workcenterViewModel)
+        public ActionResult Add(WorkcenterDTO workcenterDto)
         {
             try
             {
-                workcenterViewModel.ModelState = this.ModelState;
+                //workcenterViewModel.ModelState = this.ModelState;
                 if (ModelState.IsValid)
                 { 
-                    var workcenterDTO = AutoMapperWebUtil.WorkcenterVmToDto(workcenterViewModel);
-                    int workcenterId = workcenterService.Add(workcenterDTO);
+                    var workcenterDTO = AutoMapperWebUtil.WorkcenterDtoToEntities(workcenterDto);
+                    int workcenterId = workcenterCrudService.Add(workcenterDTO);
                     return RedirectToAction("Index");
                 }
             }
@@ -57,18 +58,18 @@ namespace PlantApp.WEB.Controllers
                 ControllerExtension.ActionsOnException(logger, ex,  ModelState);
                 return Json(ex, JsonRequestBehavior.AllowGet);
             }
-            workcenterViewModel.ModelState = this.ModelState;
-            return Json(workcenterViewModel, JsonRequestBehavior.AllowGet);
+            //workcenterViewModel.ModelState = this.ModelState;
+            return Json(workcenterDto, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet] 
         public ActionResult Edit(int id)
         {   
-            WorkcenterViewModel workcenterViewModel = new WorkcenterViewModel();
+            WorkcenterDTO workcenterDto = new WorkcenterDTO();
             try
             {
-                WorkcenterDTO workcenterDTO = workcenterService.Get(id);
-                if (workcenterDTO == null)
+                Workcenter workcenter = workcenterCrudService.Get(id);
+                if (workcenter == null)
                 {
                     logger.Error($"HttpNotFound! Url:{System.Web.HttpContext.Current.Request.UrlReferrer}");
 
@@ -82,7 +83,7 @@ namespace PlantApp.WEB.Controllers
                 }
                 else
                 {
-                    workcenterViewModel = AutoMapperWebUtil.WorkcenterDtoToVm(workcenterDTO);
+                    workcenterDto = AutoMapperWebUtil.WorkcenterEntitiesToDto(workcenter);
                 }
             }
             catch (ValidationException ex)
@@ -90,20 +91,20 @@ namespace PlantApp.WEB.Controllers
                 ControllerExtension.ActionsOnException(logger, ex, ModelState);
                 return Json(ex, JsonRequestBehavior.AllowGet);
             }
-            workcenterViewModel.ModelState = this.ModelState;
-            return Json(workcenterViewModel, JsonRequestBehavior.AllowGet);
+           // workcenterViewModel.ModelState = this.ModelState;
+            return Json(workcenterDto, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public ActionResult Edit(WorkcenterViewModel workcenterViewModel)
+        public ActionResult Edit(WorkcenterDTO workcenterDto)
         {
             try
             {
-                workcenterViewModel.ModelState = this.ModelState;
+                //workcenterViewModel.ModelState = this.ModelState;
                 if (ModelState.IsValid)
                 {
-                    var workcenterDTO = AutoMapperWebUtil.WorkcenterVmToDto(workcenterViewModel);
-                    workcenterService.Edit(workcenterDTO);
+                    var workcenter = AutoMapperWebUtil.WorkcenterDtoToEntities(workcenterDto);
+                    workcenterCrudService.Edit(workcenter);
                     return RedirectToAction("Index");
                 }
             }
@@ -112,23 +113,23 @@ namespace PlantApp.WEB.Controllers
                 ControllerExtension.ActionsOnException(logger, ex, ModelState);
                 return Json(ex, JsonRequestBehavior.AllowGet);
             }
-            workcenterViewModel.ModelState = this.ModelState;
-            return Json(workcenterViewModel, JsonRequestBehavior.AllowGet);
+           // workcenterViewModel.ModelState = this.ModelState;
+            return Json(workcenterDto, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
         public ActionResult Delete(int id)
         {
-            WorkcenterViewModel workcenterVM;
-            WorkcenterDTO workcenterDTO = workcenterService.Get(id);
+            WorkcenterDTO workcenterDto;
+            Workcenter workcenter = workcenterCrudService.Get(id);
             try
             {
-                if (workcenterDTO == null)
+                if (workcenter == null)
                 {
                     return HttpNotFound();
                 } else
                 {
-                    workcenterVM = AutoMapperWebUtil.WorkcenterDtoToVm(workcenterDTO);
+                    workcenterDto = AutoMapperWebUtil.WorkcenterEntitiesToDto(workcenter);
                 }
             }
             catch (ValidationException ex)
@@ -136,18 +137,18 @@ namespace PlantApp.WEB.Controllers
                 ControllerExtension.ActionsOnException(logger, ex, ModelState);
                 return Json(ex, JsonRequestBehavior.AllowGet);
             }
-            return Json(workcenterVM,JsonRequestBehavior.AllowGet);
+            return Json(workcenterDto,JsonRequestBehavior.AllowGet);
         }
 
         [HttpDelete, ActionName("Delete")]
         public ActionResult DeleteWorkcenter(int id)
         {
-            WorkcenterDTO workcenterDTO = workcenterService.Get(id);
+            Workcenter workcenter = workcenterCrudService.Get(id);
             try
             {
-                if (workcenterDTO != null)
+                if (workcenter != null)
                 {
-                    workcenterService.Delete(id);
+                    workcenterCrudService.Delete(id);
                 }
                 else
                 {
@@ -164,7 +165,7 @@ namespace PlantApp.WEB.Controllers
 
         protected override void Dispose(bool disposing)
         {
-            workcenterService.Dispose();
+            workcenterCrudService.Dispose();
             base.Dispose(disposing);
         }
     }

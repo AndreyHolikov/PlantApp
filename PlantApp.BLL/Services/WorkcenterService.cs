@@ -1,5 +1,4 @@
 ﻿using System;
-using PlantApp.BLL.DTO;
 using PlantApp.DAL.Entities;
 using PlantApp.BLL.BusinessModels;
 using PlantApp.DAL.Interfaces;
@@ -7,11 +6,11 @@ using PlantApp.BLL.Infrastructure;
 using PlantApp.BLL.Interfaces;
 using System.Collections.Generic;
 using AutoMapper;
-using PlantApp.BLL.Util;
+//using PlantApp.BLL.Util;
 
 namespace PlantApp.BLL.Services
 {
-    public class WorkcenterService : IService<WorkcenterDTO>
+    public class WorkcenterService : ICrudService<Workcenter>
     {
         IUnitOfWork unitOfWork { get; set; }
 
@@ -20,44 +19,39 @@ namespace PlantApp.BLL.Services
             this.unitOfWork = unitOfWork;
         }
 
-        public IEnumerable<WorkcenterDTO> GetAll()
+        public IEnumerable<Workcenter> GetAll()
         {
-            IEnumerable<Workcenter> workcenters = this.unitOfWork.Workcenters.GetAll();
-            return AutoMapperBllUtil.IEnumerableWorkcenterEntitiesToDto(workcenters);
+            return this.unitOfWork.Workcenters.GetAll();
         }
 
-        public WorkcenterDTO Get(int id)
+        public Workcenter Get(int id)
         {
             var workcenter = this.unitOfWork.Workcenters.Get(id);
             if (workcenter == null)
                 throw new ValidationException("Workcenter not found.");
 
-            return new WorkcenterDTO { Id = workcenter.Id, Name = workcenter.Name};
+            return new Workcenter { Id = workcenter.Id, Name = workcenter.Name};
         }
 
-        public int Add(WorkcenterDTO workcenterDto)
+        public int Add(Workcenter workcenter)
         {
-            if (workcenterDto == null)
+            if (workcenter == null)
                 throw new ValidationException("Workcenter not found.");
 
-            Workcenter workcenter = new Workcenter
-            {
-                Name = workcenterDto.Name
-            };
             int id = this.unitOfWork.Workcenters.Create(workcenter);
             this.unitOfWork.Save();
 
             return id;
         }
 
-        public void Edit(WorkcenterDTO workcenterDto)
+        public void Edit(Workcenter workcenter)
         {
-            if (workcenterDto == null || workcenterDto.Id == 0 )
+            if (workcenter == null || workcenter.Id == 0 )
                 throw new ValidationException("Workcenter not found.");
 
-            Workcenter workcenter = this.unitOfWork.Workcenters.Get(workcenterDto.Id);
-
-            workcenter = AutoMapperBllUtil.WorkcenterDtoToEntities(workcenterDto);
+            var _workcenter = this.unitOfWork.Workcenters.Get(workcenter.Id);
+            if (_workcenter == null)
+                throw new ValidationException("Workcenter not found.");
 
             this.unitOfWork.Workcenters.Update(workcenter);
             this.unitOfWork.Save();

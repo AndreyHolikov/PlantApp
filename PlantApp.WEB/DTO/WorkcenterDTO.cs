@@ -1,4 +1,4 @@
-﻿namespace PlantApp.BLL.DTO
+﻿namespace PlantApp.WEB.DTO
 {
     public class WorkcenterDTO
     {
